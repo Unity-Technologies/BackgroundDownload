@@ -38,6 +38,7 @@ public class BackgroundDownload {
         destinationUri = dest;
         request = new DownloadManager.Request(url);
         request.setDestinationUri(dest);
+        request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_HIDDEN);
     }
 
     private BackgroundDownload(DownloadManager manager, long id, Uri url, Uri dest)
