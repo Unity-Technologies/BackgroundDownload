@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+using BackgroundDownloadimpl = Unity.Networking.BackgroundDownloadAndroid;
+
 namespace Unity.Networking
 {
     public enum BackgroundDownloadPolicy
@@ -60,7 +62,7 @@ namespace Unity.Networking
 
         public static BackgroundDownload Start(BackgroundDownloadConfig config)
         {
-            var download = new BackgroundDownloadAndroid(config);
+            var download = new BackgroundDownloadimpl(config);
             LoadDownloads();
             _downloads.Add(config.filePath, download);
             SaveDownloads();
@@ -102,12 +104,12 @@ namespace Unity.Networking
         static void LoadDownloads()
         {
             if (_downloads == null)
-                _downloads = BackgroundDownloadAndroid.LoadDownloads();
+                _downloads = BackgroundDownloadimpl.LoadDownloads();
         }
 
         static void SaveDownloads()
         {
-            BackgroundDownloadAndroid.SaveDownloads(_downloads);
+            BackgroundDownloadimpl.SaveDownloads(_downloads);
         }
     }
 
