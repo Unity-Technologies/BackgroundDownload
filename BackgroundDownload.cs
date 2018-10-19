@@ -3,7 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+#if UNITY_ANDROID
 using BackgroundDownloadimpl = Unity.Networking.BackgroundDownloadAndroid;
+#elif UNITY_IOS
+using BackgroundDownloadimpl = Unity.Networking.BackgroundDownloadiOS;
+#endif
 
 namespace Unity.Networking
 {
