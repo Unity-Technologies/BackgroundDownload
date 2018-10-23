@@ -103,6 +103,11 @@ namespace Unity.Networking
         {
             _downloads.Remove(_config.filePath);
             SaveDownloads();
+            if (_status == BackgroundDownloadStatus.Downloading)
+            {
+                _status = BackgroundDownloadStatus.Failed;
+                _error = "Aborted";
+            }
         }
 
         static void LoadDownloads()
