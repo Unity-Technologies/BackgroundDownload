@@ -39,7 +39,7 @@ namespace Unity.Networking
         : CustomYieldInstruction
         , IDisposable
     {
-        static Dictionary<string, BackgroundDownload> _downloads;
+        protected static Dictionary<string, BackgroundDownload> _downloads;
 
         public static BackgroundDownload[] backgroundDownloads
         {

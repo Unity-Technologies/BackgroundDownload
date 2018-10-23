@@ -14,17 +14,45 @@ namespace Unity.Networking
         static AndroidJavaClass _playerClass;
         static AndroidJavaClass _backgroundDownloadClass;
 
+        class Callback : AndroidJavaProxy
+        {
+            public Callback()
+                : base("com.unity3d.backgrounddownload.CompletionReceiver$Callback")
+            {}
+
+            void downloadCompleted()
+            {
+                foreach (var download in _downloads.Values)
+                    ((BackgroundDownloadAndroid)download).CheckFinished();
+            }
+        }
+
+        static Callback _finishedCallback;
+
         AndroidJavaObject _download;
         long _id = 0;
+
+        static void SetupBackendStatics()
+        {
+            if (_backgroundDownloadClass == null)
+                _backgroundDownloadClass = new AndroidJavaClass("com.unity3d.backgrounddownload.BackgroundDownload");
+            if (_finishedCallback == null)
+            {
+                _finishedCallback = new Callback();
+                var receiver = new AndroidJavaClass("com.unity3d.backgrounddownload.CompletionReceiver");
+                receiver.CallStatic("setCallback", _finishedCallback);
+            }
+            if (_playerClass == null)
+                _playerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+        }
 
         internal BackgroundDownloadAndroid(BackgroundDownloadConfig config)
             : base(config)
         {
+            SetupBackendStatics();
             string filePath = Path.Combine(Application.persistentDataPath, config.filePath);
             if (File.Exists(filePath))
                 File.Delete(filePath);
-            if (_backgroundDownloadClass == null)
-                _backgroundDownloadClass = new AndroidJavaClass("com.unity3d.backgrounddownload.BackgroundDownload");
             string fileUri = "file://" + filePath;
             bool allowMetered = false;
             bool allowRoaming = false;
@@ -42,8 +70,6 @@ namespace Unity.Networking
             }
             _download = _backgroundDownloadClass.CallStatic<AndroidJavaObject>("create", config.url.AbsoluteUri, fileUri);
 
-            if (_playerClass == null)
-                _playerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
             _download.Call("setAllowMetered", allowMetered);
             _download.Call("setAllowRoaming", allowRoaming);
             var activity = _playerClass.GetStatic<AndroidJavaObject>("currentActivity");
@@ -61,10 +87,7 @@ namespace Unity.Networking
 
         static BackgroundDownloadAndroid Recreate(long id)
         {
-            if (_backgroundDownloadClass == null)
-                _backgroundDownloadClass = new AndroidJavaClass("com.unity3d.backgrounddownload.BackgroundDownload");
-            if (_playerClass == null)
-                _playerClass = new AndroidJavaClass("com.unity3d.player.UnityPlayer");
+            SetupBackendStatics();
             var activity = _playerClass.GetStatic<AndroidJavaObject>("currentActivity");
             var download = _backgroundDownloadClass.CallStatic<AndroidJavaObject>("recreate", activity, id);
             if (download != null)
@@ -113,7 +136,7 @@ namespace Unity.Networking
             _download.Call("remove");
         }
 
-        public override bool keepWaiting { get { CheckFinished(); return _status == BackgroundDownloadStatus.Downloading; } }
+        public override bool keepWaiting { get { return _status == BackgroundDownloadStatus.Downloading; } }
 
         public override void Dispose()
         {
