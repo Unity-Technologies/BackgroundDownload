@@ -7,6 +7,8 @@ using UnityEngine;
 using BackgroundDownloadimpl = Unity.Networking.BackgroundDownloadAndroid;
 #elif UNITY_IOS
 using BackgroundDownloadimpl = Unity.Networking.BackgroundDownloadiOS;
+#elif UNITY_WSA_10_0
+using BackgroundDownloadimpl = Unity.Networking.BackgroundDownloadUWP;
 #endif
 
 namespace Unity.Networking
