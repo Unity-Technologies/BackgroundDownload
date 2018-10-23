@@ -42,6 +42,19 @@ namespace Unity.Networking
                         {
                             var downloader = new BackgroundDownloader();
                             downloader.TransferGroup = s_BackgroundDownloadGroup;
+                            switch (config.policy)
+                            {
+                                case BackgroundDownloadPolicy.AlwaysAllow:
+                                    downloader.CostPolicy = BackgroundTransferCostPolicy.Always;
+                                    break;
+                                case BackgroundDownloadPolicy.AllowMetered:
+                                case BackgroundDownloadPolicy.Default:
+                                    downloader.CostPolicy = BackgroundTransferCostPolicy.Default;
+                                    break;
+                                case BackgroundDownloadPolicy.UnrestrictedOnly:
+                                    downloader.CostPolicy = BackgroundTransferCostPolicy.UnrestrictedOnly;
+                                    break;
+                            }
                             var download = downloader.CreateDownload(config.url, fileT.Result);
                             var downloadTask = download.StartAsync().AsTask();
                             downloadTask.ContinueWith(DownloadTaskFinished, _cancelSource.Token);
