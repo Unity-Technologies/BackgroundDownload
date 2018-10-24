@@ -92,9 +92,9 @@ static NSURL* GetDestinationUri(NSString* dest, NSFileManager** fileManager)
     }
 }
 
-- (NSURLSessionDownloadTask*)newSessionTask:(NSURLSession*)session withURL:(NSURL*)url forDestination:(NSString*)dest
+- (NSURLSessionDownloadTask*)newSessionTask:(NSURLSession*)session withRequest:(NSURLRequest*)request forDestination:(NSString*)dest
 {
-    NSURLSessionDownloadTask *task = [session downloadTaskWithURL: url];
+    NSURLSessionDownloadTask *task = [session downloadTaskWithRequest: request];
     task.taskDescription = dest;
     UnityBackgroundDownload* download = [[UnityBackgroundDownload alloc] init];
 	download.isAttached = YES;
@@ -185,13 +185,22 @@ public:
 static UnityBackgroundDownloadRegistrator gRegistrator;
 
 
-extern "C" void* UnityBackgroundDownloadStart(const char* url, const char* dest)
+extern "C" void* UnityBackgroundDownloadCreateRequest(const char* url)
 {
     NSURL* downloadUrl = [NSURL URLWithString: [NSString stringWithUTF8String: url]];
+    NSMutableURLRequest* request = [[NSMutableURLRequest alloc] init];
+    request.HTTPMethod = @"GET";
+    request.URL = downloadUrl;
+    return (__bridge_retained void*)request;
+}
+
+extern "C" void* UnityBackgroundDownloadStart(void* req, const char* dest)
+{
+    NSMutableURLRequest* request = (__bridge_transfer NSMutableURLRequest*)req;
     NSString* destPath = [NSString stringWithUTF8String: dest];
     NSURLSession* session = UnityBackgroundDownloadSession();
     UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
-    NSURLSessionDownloadTask *task = [delegate newSessionTask: session withURL: downloadUrl forDestination: destPath];
+    NSURLSessionDownloadTask *task = [delegate newSessionTask: session withRequest: request forDestination: destPath];
     [task resume];
     return (__bridge void*)task;
 }

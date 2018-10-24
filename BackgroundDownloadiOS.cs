@@ -16,7 +16,8 @@ namespace Unity.Networking
         internal BackgroundDownloadiOS(BackgroundDownloadConfig config)
             : base(config)
         {
-            _backend = UnityBackgroundDownloadStart(config.url.AbsoluteUri, config.filePath);
+            IntPtr request = UnityBackgroundDownloadCreateRequest(config.url.AbsoluteUri);
+            _backend = UnityBackgroundDownloadStart(request, config.filePath);
         }
 
         BackgroundDownloadiOS(IntPtr backend, BackgroundDownloadConfig config)
@@ -68,8 +69,10 @@ namespace Unity.Networking
         }
 
         [DllImport("__Internal")]
-        static extern IntPtr UnityBackgroundDownloadStart(
-            [MarshalAs(UnmanagedType.LPStr)] string url, [MarshalAs(UnmanagedType.LPStr)] string dest);
+        static extern IntPtr UnityBackgroundDownloadCreateRequest([MarshalAs(UnmanagedType.LPStr)] string url);
+
+        [DllImport("__Internal")]
+        static extern IntPtr UnityBackgroundDownloadStart(IntPtr request, [MarshalAs(UnmanagedType.LPStr)] string dest);
 
         [DllImport("__Internal")]
         static extern int UnityBackgroundDownloadIsDone(IntPtr backend);
