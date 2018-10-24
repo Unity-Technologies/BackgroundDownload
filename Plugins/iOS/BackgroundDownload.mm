@@ -194,6 +194,12 @@ extern "C" void* UnityBackgroundDownloadCreateRequest(const char* url)
     return (__bridge_retained void*)request;
 }
 
+extern "C" void UnityBackgroundDownloadAddRequestHeader(void* req, const char* header, const char* value)
+{
+    NSMutableURLRequest* request = (__bridge NSMutableURLRequest*)req;
+    [request setValue:[NSString stringWithUTF8String:value] forHTTPHeaderField:[NSString stringWithUTF8String:header]];
+}
+
 extern "C" void* UnityBackgroundDownloadStart(void* req, const char* dest)
 {
     NSMutableURLRequest* request = (__bridge_transfer NSMutableURLRequest*)req;

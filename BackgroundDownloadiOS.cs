@@ -17,6 +17,11 @@ namespace Unity.Networking
             : base(config)
         {
             IntPtr request = UnityBackgroundDownloadCreateRequest(config.url.AbsoluteUri);
+            if (config.requestHeaders != null)
+                foreach (var header in config.requestHeaders)
+                    if (header.Value != null)
+                        foreach (var val in header.Value)
+                            UnityBackgroundDownloadAddRequestHeader(request, header.Key, val);
             _backend = UnityBackgroundDownloadStart(request, config.filePath);
         }
 
@@ -70,6 +75,10 @@ namespace Unity.Networking
 
         [DllImport("__Internal")]
         static extern IntPtr UnityBackgroundDownloadCreateRequest([MarshalAs(UnmanagedType.LPStr)] string url);
+
+        [DllImport("__Internal")]
+        static extern void UnityBackgroundDownloadAddRequestHeader(IntPtr headers,
+            [MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.LPStr)] string value);
 
         [DllImport("__Internal")]
         static extern IntPtr UnityBackgroundDownloadStart(IntPtr request, [MarshalAs(UnmanagedType.LPStr)] string dest);
