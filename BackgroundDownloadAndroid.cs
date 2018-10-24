@@ -72,6 +72,11 @@ namespace Unity.Networking
 
             _download.Call("setAllowMetered", allowMetered);
             _download.Call("setAllowRoaming", allowRoaming);
+            if (config.requestHeaders != null)
+                foreach (var header in config.requestHeaders)
+                    if (header.Value != null)
+                        foreach (var val in header.Value)
+                            _download.Call("addRequestHeader", header.Key, val);
             var activity = _playerClass.GetStatic<AndroidJavaObject>("currentActivity");
             _id = _download.Call<long>("start", activity);
         }

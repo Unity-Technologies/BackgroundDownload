@@ -63,6 +63,10 @@ public class BackgroundDownload {
         return id;
     }
 
+    public void addRequestHeader(String name, String value) {
+        request.addRequestHeader(name, value);
+    }
+
     public int checkFinished() {
         if (error != null)
             return -1;
