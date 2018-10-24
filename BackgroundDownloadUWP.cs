@@ -42,6 +42,11 @@ namespace Unity.Networking
                         {
                             var downloader = new BackgroundDownloader();
                             downloader.TransferGroup = s_BackgroundDownloadGroup;
+                            if (config.requestHeaders != null)
+                                foreach (var header in config.requestHeaders)
+                                    if (header.Value != null)
+                                        foreach (var value in header.Value)
+                                            downloader.SetRequestHeader(header.Key, value);
                             switch (config.policy)
                             {
                                 case BackgroundDownloadPolicy.AlwaysAllow:
