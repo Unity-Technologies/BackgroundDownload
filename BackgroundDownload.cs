@@ -26,6 +26,26 @@ namespace Unity.Networking
         public Uri url;
         public string filePath;
         public BackgroundDownloadPolicy policy;
+        public Dictionary<string, List<string>> requestHeaders;
+
+        public void AddRequestHeader(string name, string value)
+        {
+            if (string.IsNullOrEmpty(name))
+                throw new ArgumentException("Header name cannot be empty");
+            if (value == null)
+                throw new ArgumentNullException("Header value cannot be null");
+            if (requestHeaders == null)
+                requestHeaders = new Dictionary<string, List<string>>();
+            List<string> values;
+            if (requestHeaders.TryGetValue(name, out values))
+                values.Add(value);
+            else
+            {
+                values = new List<string>();
+                values.Add(value);
+                requestHeaders[name] = values;
+            }
+        }
     }
 
     public enum BackgroundDownloadStatus
