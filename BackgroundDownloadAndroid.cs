@@ -87,11 +87,19 @@ namespace Unity.Networking
 
         static BackgroundDownloadAndroid Recreate(long id)
         {
-            SetupBackendStatics();
-            var activity = _playerClass.GetStatic<AndroidJavaObject>("currentActivity");
-            var download = _backgroundDownloadClass.CallStatic<AndroidJavaObject>("recreate", activity, id);
-            if (download != null)
-                return new BackgroundDownloadAndroid(id, download);
+            try
+            {
+                SetupBackendStatics();
+                var activity = _playerClass.GetStatic<AndroidJavaObject>("currentActivity");
+                var download = _backgroundDownloadClass.CallStatic<AndroidJavaObject>("recreate", activity, id);
+                if (download != null)
+                    return new BackgroundDownloadAndroid(id, download);
+            }
+            catch (Exception e)
+            {
+                Debug.LogError(string.Format("Failed to recreate background download with id {0}: {1}", id, e.Message));
+            }
+
             return null;
         }
 
