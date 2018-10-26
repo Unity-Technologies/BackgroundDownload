@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-#if UNITY_ANDROID
+#if UNITY_EDITOR
+using BackgroundDownloadimpl = Unity.Networking.BackgroundDownloadEditor;
+#elif UNITY_ANDROID
 using BackgroundDownloadimpl = Unity.Networking.BackgroundDownloadAndroid;
 #elif UNITY_IOS
 using BackgroundDownloadimpl = Unity.Networking.BackgroundDownloadiOS;
