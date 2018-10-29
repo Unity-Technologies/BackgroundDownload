@@ -151,6 +151,11 @@ namespace Unity.Networking
 
         public override bool keepWaiting { get { return _status == BackgroundDownloadStatus.Downloading; } }
 
+        protected override float GetProgress()
+        {
+            return _download.Call<float>("getProgress");
+        }
+
         public override void Dispose()
         {
             RemoveDownload();
