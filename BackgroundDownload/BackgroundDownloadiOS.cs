@@ -71,6 +71,8 @@ namespace Unity.Networking
         {
             if (_backend == IntPtr.Zero)
                 return 1.0f;
+            if (_status != BackgroundDownloadStatus.Downloading)
+                return 1.0f;
             return UnityBackgroundDownloadGetProgress(_backend);
         }
 

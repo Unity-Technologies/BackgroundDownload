@@ -254,11 +254,14 @@ extern "C" int32_t UnityBackgroundDownloadGetStatus(void* download)
 
 extern "C" float UnityBackgroundDownloadGetProgress(void* download)
 {
+    if (UnityBackgroundDownloadGetStatus(download) != kStatusDownloading)
+        return 1.0f;
     if ([[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:{11,0,0}])
     {
         NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
         return (float)task.progress.fractionCompleted;
     }
+    return -1.0f;
 }
 
 extern "C" void UnityBackgroundDownloadDestroy(void* download)
