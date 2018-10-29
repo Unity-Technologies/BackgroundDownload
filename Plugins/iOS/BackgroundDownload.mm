@@ -14,28 +14,35 @@ static NSURL* GetDestinationUri(NSString* dest, NSFileManager** fileManager)
     return destUri;
 }
 
+enum
+{
+    kStatusDownloading = 0,
+    kStatusDone = 1,
+    kStatusFailed = 2,
+};
+
 @interface UnityBackgroundDownload : NSObject
 {
 }
 
 @property BOOL isAttached;
-@property BOOL isDone;
+@property BOOL status;
 
 @end
 
 @implementation UnityBackgroundDownload
 {
 	BOOL _isAttached;
-    BOOL _isDone;
+    BOOL _status;
 }
 
 @synthesize isAttached = _isAttached;
-@synthesize isDone = _isDone;
+@synthesize status = _status;
 
 - (id)init
 {
 	_isAttached = NO;
-    _isDone = NO;
+    _status = kStatusDownloading;
     return self;
 }
 
@@ -80,7 +87,7 @@ static NSURL* GetDestinationUri(NSString* dest, NSFileManager** fileManager)
     NSURL* destUri = GetDestinationUri(downloadTask.taskDescription, &fileManager);
     [fileManager replaceItemAtURL: destUri withItemAtURL: location backupItemName: nil options: NSFileManagerItemReplacementUsingNewMetadataOnly resultingItemURL: nil error: nil];
     UnityBackgroundDownload* download = [backgroundDownloads objectForKey: downloadTask];
-    download.isDone = YES;
+    download.status = kStatusDone;
 }
 
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
@@ -132,12 +139,12 @@ static NSURL* GetDestinationUri(NSString* dest, NSFileManager** fileManager)
 	return nil;
 }
 
-- (BOOL)taskIsDone:(NSURLSessionDownloadTask*)task
+- (int)taskStatus:(NSURLSessionDownloadTask*)task
 {
 	UnityBackgroundDownload* download = [backgroundDownloads objectForKey:task];
 	if (download == nil)
 		return YES;
-	return download.isDone;
+	return download.status;
 }
 
 - (void)removeTask:(NSURLSessionDownloadTask*)task
@@ -237,12 +244,12 @@ extern "C" int32_t UnityBackgroundDownloadGetFilePath(void* download, char* buff
 	return (int32_t)strlen(cstr);
 }
 
-extern "C" int32_t UnityBackgroundDownloadIsDone(void* download)
+extern "C" int32_t UnityBackgroundDownloadGetStatus(void* download)
 {
 	NSURLSession* session = UnityBackgroundDownloadSession();
 	UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
 	NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
-	return (int)[delegate taskIsDone:task];
+	return (int)[delegate taskStatus:task];
 }
 
 extern "C" float UnityBackgroundDownloadGetProgress(void* download)

@@ -31,13 +31,14 @@ namespace Unity.Networking
             _backend = backend;
         }
 
+        public override BackgroundDownloadStatus status { get { UpdateStatus(); return base.status; } }
+
         public override bool keepWaiting
         {
             get
             {
-                if (_backend == IntPtr.Zero)
-                    return false;
-                return UnityBackgroundDownloadIsDone(_backend) == 0;
+                UpdateStatus();
+                return _status == BackgroundDownloadStatus.Downloading;
             }
         }
 
@@ -80,6 +81,15 @@ namespace Unity.Networking
             base.Dispose();
         }
 
+        private void UpdateStatus()
+        {
+            if (_backend == IntPtr.Zero)
+                return;
+            if (_status != BackgroundDownloadStatus.Downloading)
+                return;
+            _status = (BackgroundDownloadStatus)UnityBackgroundDownloadGetStatus(_backend);
+        }
+
         [DllImport("__Internal")]
         static extern IntPtr UnityBackgroundDownloadCreateRequest([MarshalAs(UnmanagedType.LPStr)] string url);
 
@@ -91,7 +101,7 @@ namespace Unity.Networking
         static extern IntPtr UnityBackgroundDownloadStart(IntPtr request, [MarshalAs(UnmanagedType.LPStr)] string dest);
 
         [DllImport("__Internal")]
-        static extern int UnityBackgroundDownloadIsDone(IntPtr backend);
+        static extern int UnityBackgroundDownloadGetStatus(IntPtr backend);
 
         [DllImport("__Internal")]
         static extern float UnityBackgroundDownloadGetProgress(IntPtr backend);
