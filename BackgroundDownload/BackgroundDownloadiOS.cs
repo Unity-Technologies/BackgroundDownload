@@ -66,6 +66,13 @@ namespace Unity.Networking
         {
         }
 
+        protected override float GetProgress()
+        {
+            if (_backend == IntPtr.Zero)
+                return 1.0f;
+            return UnityBackgroundDownloadGetProgress(_backend);
+        }
+
         public override void Dispose()
         {
             if (_backend != IntPtr.Zero)
@@ -85,6 +92,9 @@ namespace Unity.Networking
 
         [DllImport("__Internal")]
         static extern int UnityBackgroundDownloadIsDone(IntPtr backend);
+
+        [DllImport("__Internal")]
+        static extern float UnityBackgroundDownloadGetProgress(IntPtr backend);
 
         [DllImport("__Internal")]
         static extern void UnityBackgroundDownloadDestroy(IntPtr backend);
