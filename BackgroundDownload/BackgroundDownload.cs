@@ -121,7 +121,7 @@ namespace Unity.Networking
 
         public BackgroundDownloadConfig config { get { return _config; } }
 
-        public BackgroundDownloadStatus status { get { return _status; } }
+        public virtual BackgroundDownloadStatus status { get { return _status; } }
 
         public string error { get { return _error; } }
 
