@@ -125,6 +125,10 @@ namespace Unity.Networking
 
         public string error { get { return _error; } }
 
+        public float progress { get { return GetProgress(); } }
+
+        protected abstract float GetProgress();
+
         public virtual void Dispose()
         {
             _downloads.Remove(_config.filePath);

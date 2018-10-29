@@ -9,9 +9,13 @@ namespace Unity.Networking
         public BackgroundDownloadEditor(BackgroundDownloadConfig config)
             : base(config)
         {
+            _status = BackgroundDownloadStatus.Failed;
+            _error = "Not implemented for Unity Editor";
         }
 
         public override bool keepWaiting { get { return false; } }
+
+        protected override float GetProgress() { return 1.0f; }
 
         internal static Dictionary<string, BackgroundDownload> LoadDownloads()
         {
