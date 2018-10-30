@@ -266,7 +266,7 @@ extern "C" float UnityBackgroundDownloadGetProgress(void* download)
 {
     if (UnityBackgroundDownloadGetStatus(download) != kStatusDownloading)
         return 1.0f;
-    if ([[NSProcessInfo processInfo] isOperatingSystemAtLeastVersion:{11,0,0}])
+    if (UnityiOS111orNewer())
     {
         NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
         return (float)task.progress.fractionCompleted;
