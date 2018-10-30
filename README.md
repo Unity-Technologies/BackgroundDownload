@@ -63,7 +63,7 @@ Methods:
 
 Download file during the same app session in a coroutine (call `StartCoroutine(StartDownload())`).
 
-`
+```
 IEnumerator StartDownload()
 {
     using (var download = BackgroundDownload.Start(new Uri("https://mysite.com/file"), "files/file.data"))
@@ -75,11 +75,11 @@ IEnumerator StartDownload()
             Debug.Log("DONE downloading file");
     }
 }
-`
+```
 
 Pick download from previous app run and continue it until it finishes.
 
-`
+```
 IEnumerator ResumeDownload()
 {
     if (BackgroundDownload.backgroundDownloads.Length == 0)
@@ -90,4 +90,4 @@ IEnumerator ResumeDownload()
     // dispose download
     download.Dispose();
 }
-`
+```
