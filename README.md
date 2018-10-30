@@ -19,12 +19,12 @@ Possible values:
 ## BackgroundDownloadConfig
 
 Structure containing all the data required to start background download.
-This structure must contain the URL to file to download and a path to file to store. Destination file will be overwritten if exists. Destination path must relative and inside `Application.persistentDataPath`, because directories an application is allowed to write to are not guaranteed to be the same across different app runs.
+This structure must contain the URL to file to download and a path to file to store. Destination file will be overwritten if exists. Destination path must relative and result will be placed inside `Application.persistentDataPath`, because directories an application is allowed to write to are not guaranteed to be the same across different app runs.
 Optionally can contain custom HTTP headers to send and network policy. These two settings are not guaranteed to persist across different app runs.
 
 Fields:
 * `System.Uri url` - the URL to the file to download.
-* `string filePath` -  a **relative** file path that must be inside `Application.persistentDataPath`.
+* `string filePath` -  a **relative** file path that must be relative (will be inside `Application.persistentDataPath`).
 * `BackgroundDownloadPolicy policy` - policy to limit downloads to certain network types. Does not persist across app runs.
 * `float progress` - how far the request has progressed (0 to 1), negative value if unkown. Accessing this field can be very expensive (in particular on Android).
 * `Dictionary<string, List<string>> requestHeaders` - custom HTTP headers to send. Does not persist across app runs.
