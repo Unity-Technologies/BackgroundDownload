@@ -25,7 +25,8 @@ Optionally can contain custom HTTP headers to send and network policy. These two
 Fields:
 * System.Uri url - the URL to the file to download.
 * string filePath -  a **relative** file path that must be inside *Application.persistentDataPath*.
-* BackgroundDownloadPolicy policy - policy to limit downloads to certain network types. Does not persist across app runs.
+* `BackgroundDownloadPolicy policy` - policy to limit downloads to certain network types. Does not persist across app runs.
+* float progress - how far the request has progressed (0 to 1), negative value if unkown. Accessing this field can be very expensive (in particular on Android).
 * Dictionary<string, List<string>> requestHeaders - custom HTTP headers to send. Does not persist across app runs.
 
 Methods:
