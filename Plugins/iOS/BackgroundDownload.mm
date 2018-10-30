@@ -90,6 +90,15 @@ enum
     download.status = kStatusDone;
 }
 
+- (void)URLSession:(NSURLSession *)session task:(NSURLSessionTask *)task didCompleteWithError:(NSError *)error
+{
+    if (error != nil)
+    {
+        UnityBackgroundDownload* download = [backgroundDownloads objectForKey: (NSURLSessionDownloadTask*)task];
+        download.status = kStatusFailed;
+    }
+}
+
 - (void)URLSessionDidFinishEventsForBackgroundURLSession:(NSURLSession *)session
 {
     if (self.finishEventsHandler != nil)
