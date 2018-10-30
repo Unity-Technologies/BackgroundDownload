@@ -58,3 +58,36 @@ Methods:
 * `static BackgroundDownload Start(BackgroundDownloadConfig config)` - start download using given configuration.
 * `static BackgroundDownload Start(Uri url, String filePath)` - convenience method to start download when no additional settings are required.
 * `void Dispose()` - release the resources and remove the download. Cancels download if incomplete.
+
+# Examples
+
+Download file during the same app session in a coroutine (call `StartCoroutine(StartDownload())`).
+
+`
+IEnumerator StartDownload()
+{
+    using (var download = BackgroundDownload.Start(new Uri("https://mysite.com/file"), "files/file.data"))
+    {
+        yield return download;
+        if (download.status == BackgroundDownloadStatus.Failed)
+            Debug.Log(download.error);
+        else
+            Debug.Log("DONE downloading file");
+    }
+}
+`
+
+Pick download from previous app run and continue it until it finishes.
+
+`
+IEnumerator ResumeDownload()
+{
+    if (BackgroundDownload.backgroundDownloads.Length == 0)
+        yield break;
+    var download = BackgroundDownload.backgroundDownloads[0];
+    yield return download;
+    // deal with results here
+    // dispose download
+    download.Dispose();
+}
+`
