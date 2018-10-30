@@ -149,6 +149,7 @@ enum
 
 - (void)removeTask:(NSURLSessionDownloadTask*)task
 {
+    [task cancel];
     [backgroundDownloads removeObjectForKey: task];
 }
 
