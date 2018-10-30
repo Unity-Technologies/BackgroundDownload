@@ -19,6 +19,7 @@ namespace Unity.Networking
         static BackgroundTransferGroup s_BackgroundDownloadGroup;
 
         CancellationTokenSource _cancelSource;
+        DownloadOperation _download;
 #endif
 
         internal BackgroundDownloadUWP(BackgroundDownloadConfig config)
@@ -60,8 +61,8 @@ namespace Unity.Networking
                                     downloader.CostPolicy = BackgroundTransferCostPolicy.UnrestrictedOnly;
                                     break;
                             }
-                            var download = downloader.CreateDownload(config.url, fileT.Result);
-                            var downloadTask = download.StartAsync().AsTask();
+                            _download = downloader.CreateDownload(config.url, fileT.Result);
+                            var downloadTask = _download.StartAsync().AsTask();
                             downloadTask.ContinueWith(DownloadTaskFinished, _cancelSource.Token);
                         }
                         else
@@ -106,6 +107,7 @@ namespace Unity.Networking
                 if (filePath != null)
                 {
                     var dl = new BackgroundDownloadUWP(uri, filePath);
+                    dl._download = download;
                     switch (download.Progress.Status)
                     {
                         case BackgroundTransferStatus.Completed:
@@ -128,6 +130,23 @@ namespace Unity.Networking
 
         internal static void SaveDownloads(Dictionary<string, BackgroundDownload> downloads)
         {
+        }
+
+        protected override float GetProgress()
+        {
+#if !UNITY_EDITOR
+            if (_status != BackgroundDownloadStatus.Downloading)
+                return 1.0f;
+            if (_download != null)
+            {
+                var progress = _download.Progress;
+                double received = progress.BytesReceived;
+                double total = progress.TotalBytesToReceive;
+                float ret = total > 0 ? (float)(received / total) : -1.0f;
+                return ret > 1 ? 1.0f : ret;
+            }
+#endif
+            return 0.0f;
         }
 
 #if !UNITY_EDITOR
