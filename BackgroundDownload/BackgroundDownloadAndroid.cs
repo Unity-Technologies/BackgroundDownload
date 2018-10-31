@@ -53,6 +53,12 @@ namespace Unity.Networking
             string filePath = Path.Combine(Application.persistentDataPath, config.filePath);
             if (File.Exists(filePath))
                 File.Delete(filePath);
+            else
+            {
+                var dir = Path.GetDirectoryName(filePath);
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+            }
             string fileUri = "file://" + filePath;
             bool allowMetered = false;
             bool allowRoaming = false;
