@@ -1,8 +1,13 @@
 # BackgroundDownload
+
 Plugins for mobile platforms to enable file downloads in background
 
 Allows to launch file downloads that will continue even if the app goes into background or gets quit by the operating system. The downloads can be picked the next time the app is started.
 Supported platforms are: Android, iOS and Universal Windows Platform.
+
+# How to use these plugins
+
+Drop *BackgroundDownload* and *Plugins* folders into *Assets* in your Unity project. If you are building for Android, you have to set `Write Permission` to `External` in *Player Settings*. If you are building for Universal Windows Platform, you need to enable one of the *Internet* permissions.
 
 # API
 
