@@ -2,8 +2,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 using System.Runtime.InteropServices;
+using UnityEngine;
 
 
 namespace Unity.Networking
@@ -16,6 +18,9 @@ namespace Unity.Networking
         internal BackgroundDownloadiOS(BackgroundDownloadConfig config)
             : base(config)
         {
+            var destDir = Path.GetDirectoryName(Path.Combine(Application.persistentDataPath, config.filePath));
+            if (!Directory.Exists(destDir))
+                Directory.CreateDirectory(destDir);
             IntPtr request = UnityBackgroundDownloadCreateRequest(config.url.AbsoluteUri);
             if (config.requestHeaders != null)
                 foreach (var header in config.requestHeaders)
