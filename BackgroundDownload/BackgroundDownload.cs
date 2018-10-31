@@ -90,10 +90,10 @@ namespace Unity.Networking
 
         public static BackgroundDownload Start(BackgroundDownloadConfig config)
         {
+            LoadDownloads();
             if (_downloads.ContainsKey(config.filePath))
                 throw new ArgumentException("Download of this file is already present");
             var download = new BackgroundDownloadimpl(config);
-            LoadDownloads();
             _downloads.Add(config.filePath, download);
             SaveDownloads();
             return download;
