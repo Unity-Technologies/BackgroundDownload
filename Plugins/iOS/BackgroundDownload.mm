@@ -27,6 +27,7 @@ enum
 
 @property BOOL isAttached;
 @property int status;
+@property NSString* error;
 
 @end
 
@@ -34,15 +35,18 @@ enum
 {
     BOOL _isAttached;
     int _status;
+    NSString* _error;
 }
 
 @synthesize isAttached = _isAttached;
 @synthesize status = _status;
+@synthesize error = _error;
 
 - (id)init
 {
     _isAttached = NO;
     _status = kStatusDownloading;
+    _error = nil;
     return self;
 }
 
@@ -96,6 +100,7 @@ enum
     {
         UnityBackgroundDownload* download = [backgroundDownloads objectForKey: (NSURLSessionDownloadTask*)task];
         download.status = kStatusFailed;
+        download.error = error.localizedDescription;
     }
 }
 
@@ -154,6 +159,18 @@ enum
     if (download == nil)
         return YES;
     return download.status;
+}
+
+- (NSString*)taskError:(NSURLSessionDownloadTask*)task
+{
+    UnityBackgroundDownload* download = [backgroundDownloads objectForKey:task];
+    if (download != nil)
+    {
+        NSString* error = download.error;
+        if (error != nil)
+            return error;
+    }
+    return @"Unknown error";
 }
 
 - (void)removeTask:(NSURLSessionDownloadTask*)task
@@ -272,6 +289,17 @@ extern "C" float UnityBackgroundDownloadGetProgress(void* download)
         return (float)task.progress.fractionCompleted;
     }
     return -1.0f;
+}
+
+extern "C" int32_t UnityBackgroundDownloadGetError(void* download, char* buffer)
+{
+    NSURLSession* session = UnityBackgroundDownloadSession();
+    UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
+    NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
+    NSString* error = [delegate taskError:task];
+    const char* cstr = [error UTF8String];
+    strncpy(buffer, cstr, 2048);
+    return (int32_t)strlen(cstr);
 }
 
 extern "C" void UnityBackgroundDownloadDestroy(void* download)

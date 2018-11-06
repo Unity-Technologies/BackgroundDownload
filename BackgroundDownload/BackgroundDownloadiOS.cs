@@ -95,6 +95,17 @@ namespace Unity.Networking
             if (_status != BackgroundDownloadStatus.Downloading)
                 return;
             _status = (BackgroundDownloadStatus)UnityBackgroundDownloadGetStatus(_backend);
+            if (_status == BackgroundDownloadStatus.Failed)
+                _error = GetError();
+        }
+
+        private string GetError()
+        {
+            if (_backend == IntPtr.Zero)
+                return "";
+            byte[] buffer = new byte[2048];
+            int length = UnityBackgroundDownloadGetError(_backend, buffer);
+            return Encoding.UTF8.GetString(buffer, 0, length);
         }
 
         [DllImport("__Internal")]
@@ -124,6 +135,9 @@ namespace Unity.Networking
 
         [DllImport("__Internal")]
         static extern int UnityBackgroundDownloadGetFilePath(IntPtr backend, [MarshalAs(UnmanagedType.LPArray)] byte[] buffer);
+
+        [DllImport("__Internal")]
+        static extern int UnityBackgroundDownloadGetError(IntPtr backend, [MarshalAs(UnmanagedType.LPArray)] byte[] buffer);
     }
 
 }
