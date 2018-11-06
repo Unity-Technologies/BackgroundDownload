@@ -32,7 +32,7 @@ enum
 
 @implementation UnityBackgroundDownload
 {
-	BOOL _isAttached;
+    BOOL _isAttached;
     BOOL _status;
 }
 
@@ -41,7 +41,7 @@ enum
 
 - (id)init
 {
-	_isAttached = NO;
+    _isAttached = NO;
     _status = kStatusDownloading;
     return self;
 }
@@ -113,7 +113,7 @@ enum
     NSURLSessionDownloadTask *task = [session downloadTaskWithRequest: request];
     task.taskDescription = dest;
     UnityBackgroundDownload* download = [[UnityBackgroundDownload alloc] init];
-	download.isAttached = YES;
+    download.isAttached = YES;
     [backgroundDownloads setObject: download forKey: task];
     return task;
 }
@@ -131,29 +131,29 @@ enum
 
 - (NSURLSessionDownloadTask*)firstUnattachedTask
 {
-	NSEnumerator<NSURLSessionDownloadTask*>* tasks = backgroundDownloads.keyEnumerator;
-	NSURLSessionDownloadTask* task = [tasks nextObject];
-	while (task != nil)
-	{
-		UnityBackgroundDownload* download = [backgroundDownloads objectForKey:task];
-		if (download.isAttached == NO)
-		{
-			download.isAttached = YES;
-			return task;
-		}
-		
-		task = [tasks nextObject];
-	}
-	
-	return nil;
+    NSEnumerator<NSURLSessionDownloadTask*>* tasks = backgroundDownloads.keyEnumerator;
+    NSURLSessionDownloadTask* task = [tasks nextObject];
+    while (task != nil)
+    {
+        UnityBackgroundDownload* download = [backgroundDownloads objectForKey:task];
+        if (download.isAttached == NO)
+        {
+            download.isAttached = YES;
+            return task;
+        }
+
+        task = [tasks nextObject];
+    }
+
+    return nil;
 }
 
 - (int)taskStatus:(NSURLSessionDownloadTask*)task
 {
-	UnityBackgroundDownload* download = [backgroundDownloads objectForKey:task];
-	if (download == nil)
-		return YES;
-	return download.status;
+    UnityBackgroundDownload* download = [backgroundDownloads objectForKey:task];
+    if (download == nil)
+        return YES;
+    return download.status;
 }
 
 - (void)removeTask:(NSURLSessionDownloadTask*)task
@@ -167,36 +167,36 @@ enum
 
 static NSURLSession* UnityBackgroundDownloadSession()
 {
-	if (gUnityBackgroundDownloadSession == nil)
-	{
-		NSURLSessionConfiguration* config = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier: kUnityBackgroungDownloadSessionID];
-		UnityBackgroundDownloadDelegate* delegate = [[UnityBackgroundDownloadDelegate alloc] init];
-		gUnityBackgroundDownloadSession = [NSURLSession sessionWithConfiguration: config delegate: delegate delegateQueue: nil];
-		[delegate collectTasksForSession: gUnityBackgroundDownloadSession];
-	}
-	
-	return gUnityBackgroundDownloadSession;
+    if (gUnityBackgroundDownloadSession == nil)
+    {
+        NSURLSessionConfiguration* config = [NSURLSessionConfiguration backgroundSessionConfigurationWithIdentifier: kUnityBackgroungDownloadSessionID];
+        UnityBackgroundDownloadDelegate* delegate = [[UnityBackgroundDownloadDelegate alloc] init];
+        gUnityBackgroundDownloadSession = [NSURLSession sessionWithConfiguration: config delegate: delegate delegateQueue: nil];
+        [delegate collectTasksForSession: gUnityBackgroundDownloadSession];
+    }
+
+    return gUnityBackgroundDownloadSession;
 }
 
 static void UnityBackgroundDownloadCreate()
 {
-	UnityBackgroundDownloadSession();
+    UnityBackgroundDownloadSession();
 }
 
 static void UnityBackgroundDownloadHandleEventsForBackgroundURLSession(NSString* identifier, UnityHandleEventsForBackgroundURLSession completionHandler)
 {
-	if ([identifier isEqualToString: kUnityBackgroungDownloadSessionID])
-		[UnityBackgroundDownloadDelegate setFinishEventsHandler: completionHandler];
+    if ([identifier isEqualToString: kUnityBackgroungDownloadSessionID])
+        [UnityBackgroundDownloadDelegate setFinishEventsHandler: completionHandler];
 }
 
 class UnityBackgroundDownloadRegistrator
 {
 public:
-	UnityBackgroundDownloadRegistrator()
-	{
-		UnityBackgroundDownloadCreateFunc = UnityBackgroundDownloadCreate;
-		UnityHandleEventsForBackgroundURLSessionFunc = UnityBackgroundDownloadHandleEventsForBackgroundURLSession;
-	}
+    UnityBackgroundDownloadRegistrator()
+    {
+        UnityBackgroundDownloadCreateFunc = UnityBackgroundDownloadCreate;
+        UnityHandleEventsForBackgroundURLSessionFunc = UnityBackgroundDownloadHandleEventsForBackgroundURLSession;
+    }
 };
 
 static UnityBackgroundDownloadRegistrator gRegistrator;
@@ -230,36 +230,36 @@ extern "C" void* UnityBackgroundDownloadStart(void* req, const char* dest)
 
 extern "C" void* UnityBackgroundDownloadAttach()
 {
-	NSURLSession* session = UnityBackgroundDownloadSession();
-	UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
-	NSURLSessionDownloadTask* task = [delegate firstUnattachedTask];
-	return (__bridge void*)task;
+    NSURLSession* session = UnityBackgroundDownloadSession();
+    UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
+    NSURLSessionDownloadTask* task = [delegate firstUnattachedTask];
+    return (__bridge void*)task;
 }
 
 extern "C" int32_t UnityBackgroundDownloadGetUrl(void* download, char* buffer)
 {
-	NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
-	NSString* url = task.originalRequest.URL.absoluteString;
-	const char* cstr = [url UTF8String];
-	strncpy(buffer, cstr, 2048);
-	return (int32_t)strlen(cstr);
+    NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
+    NSString* url = task.originalRequest.URL.absoluteString;
+    const char* cstr = [url UTF8String];
+    strncpy(buffer, cstr, 2048);
+    return (int32_t)strlen(cstr);
 }
 
 extern "C" int32_t UnityBackgroundDownloadGetFilePath(void* download, char* buffer)
 {
-	NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
-	NSString* dest = task.taskDescription;
-	const char* cstr = [dest UTF8String];
-	strncpy(buffer, cstr, 2048);
-	return (int32_t)strlen(cstr);
+    NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
+    NSString* dest = task.taskDescription;
+    const char* cstr = [dest UTF8String];
+    strncpy(buffer, cstr, 2048);
+    return (int32_t)strlen(cstr);
 }
 
 extern "C" int32_t UnityBackgroundDownloadGetStatus(void* download)
 {
-	NSURLSession* session = UnityBackgroundDownloadSession();
-	UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
-	NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
-	return (int)[delegate taskStatus:task];
+    NSURLSession* session = UnityBackgroundDownloadSession();
+    UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
+    NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
+    return (int)[delegate taskStatus:task];
 }
 
 extern "C" float UnityBackgroundDownloadGetProgress(void* download)
