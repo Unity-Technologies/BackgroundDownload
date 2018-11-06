@@ -26,14 +26,14 @@ enum
 }
 
 @property BOOL isAttached;
-@property BOOL status;
+@property int status;
 
 @end
 
 @implementation UnityBackgroundDownload
 {
     BOOL _isAttached;
-    BOOL _status;
+    int _status;
 }
 
 @synthesize isAttached = _isAttached;
