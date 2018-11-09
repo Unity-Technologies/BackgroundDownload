@@ -1,4 +1,6 @@
-#include "UnityAppController.h"
+#include "PluginBase/AppDelegateListener.h"
+
+typedef void (^UnityHandleEventsForBackgroundURLSession)();
 
 static NSString* _Nonnull kUnityBackgroungDownloadSessionID = @"UnityBackgroundDownload";
 static NSURLSession* gUnityBackgroundDownloadSession = nil;
@@ -195,24 +197,38 @@ static NSURLSession* UnityBackgroundDownloadSession()
     return gUnityBackgroundDownloadSession;
 }
 
-static void UnityBackgroundDownloadCreate()
+@interface BackgroundDownloadAppListener : NSObject<AppDelegateListener>
+
+@end
+
+@implementation BackgroundDownloadAppListener
+
+- (void)applicationWillFinishLaunchingWithOptions:(NSNotification*)notification
 {
     UnityBackgroundDownloadSession();
 }
 
-static void UnityBackgroundDownloadHandleEventsForBackgroundURLSession(NSString* identifier, UnityHandleEventsForBackgroundURLSession completionHandler)
+- (void)onHandleEventsForBackgroundURLSession:(NSNotification *)notification
 {
-    if ([identifier isEqualToString: kUnityBackgroungDownloadSessionID])
-        [UnityBackgroundDownloadDelegate setFinishEventsHandler: completionHandler];
+    NSDictionary* args = notification.userInfo;
+    if (args != nil)
+    {
+        UnityHandleEventsForBackgroundURLSession handler = [args objectForKey:kUnityBackgroungDownloadSessionID];
+        [UnityBackgroundDownloadDelegate setFinishEventsHandler: handler];
+    }
 }
+
+@end
+
+static BackgroundDownloadAppListener* s_AppEventListener;
 
 class UnityBackgroundDownloadRegistrator
 {
 public:
     UnityBackgroundDownloadRegistrator()
     {
-        UnityBackgroundDownloadCreateFunc = UnityBackgroundDownloadCreate;
-        UnityHandleEventsForBackgroundURLSessionFunc = UnityBackgroundDownloadHandleEventsForBackgroundURLSession;
+        s_AppEventListener = [[BackgroundDownloadAppListener alloc] init];
+        UnityRegisterAppDelegateListener(s_AppEventListener);
     }
 };
 
