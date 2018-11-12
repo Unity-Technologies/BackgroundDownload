@@ -6,6 +6,7 @@ using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Foundation;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using UnityEngine;
@@ -19,6 +20,7 @@ namespace Unity.Networking
         static BackgroundTransferGroup s_BackgroundDownloadGroup;
 
         CancellationTokenSource _cancelSource;
+        IAsyncOperationWithProgress<DownloadOperation, DownloadOperation> _downloadOperation;
         DownloadOperation _download;
 #endif
 
@@ -62,7 +64,8 @@ namespace Unity.Networking
                                     break;
                             }
                             _download = downloader.CreateDownload(config.url, fileT.Result);
-                            var downloadTask = _download.StartAsync().AsTask();
+                            _downloadOperation = _download.StartAsync();
+                            var downloadTask = _downloadOperation.AsTask();
                             downloadTask.ContinueWith(DownloadTaskFinished, _cancelSource.Token);
                         }
                         else
@@ -120,7 +123,8 @@ namespace Unity.Networking
                     }
 
                     downloads[filePath] = dl;
-                    download.AttachAsync().AsTask().ContinueWith(dl.DownloadTaskFinished, dl._cancelSource.Token);
+                    dl._downloadOperation = download.AttachAsync();
+                    dl._downloadOperation.AsTask().ContinueWith(dl.DownloadTaskFinished, dl._cancelSource.Token);
                 }
             }
 #endif
@@ -153,7 +157,11 @@ namespace Unity.Networking
         public override void Dispose()
         {
             if (_status == BackgroundDownloadStatus.Downloading)
+            {
                 _cancelSource.Cancel();
+                if (_downloadOperation != null)
+                    _downloadOperation.Cancel();
+            }
             base.Dispose();
         }
 
