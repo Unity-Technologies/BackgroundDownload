@@ -34,53 +34,7 @@ namespace Unity.Networking
             if (!Directory.Exists(directory))
                 Directory.CreateDirectory(directory);
             _cancelSource = new CancellationTokenSource();
-            var folderTask = StorageFolder.GetFolderFromPathAsync(directory).AsTask();
-            folderTask.ContinueWith((folderT) => {
-                if (folderT.Status == TaskStatus.RanToCompletion)
-                {
-                    var fileName = Path.GetFileName(filePath);
-                    var fileTask = folderT.Result.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting).AsTask();
-                    fileTask.ContinueWith((fileT) => {
-                        if (fileT.Status == TaskStatus.RanToCompletion)
-                        {
-                            var downloader = new BackgroundDownloader();
-                            downloader.TransferGroup = s_BackgroundDownloadGroup;
-                            if (config.requestHeaders != null)
-                                foreach (var header in config.requestHeaders)
-                                    if (header.Value != null)
-                                        foreach (var value in header.Value)
-                                            downloader.SetRequestHeader(header.Key, value);
-                            switch (config.policy)
-                            {
-                                case BackgroundDownloadPolicy.AlwaysAllow:
-                                    downloader.CostPolicy = BackgroundTransferCostPolicy.Always;
-                                    break;
-                                case BackgroundDownloadPolicy.AllowMetered:
-                                case BackgroundDownloadPolicy.Default:
-                                    downloader.CostPolicy = BackgroundTransferCostPolicy.Default;
-                                    break;
-                                case BackgroundDownloadPolicy.UnrestrictedOnly:
-                                    downloader.CostPolicy = BackgroundTransferCostPolicy.UnrestrictedOnly;
-                                    break;
-                            }
-                            _download = downloader.CreateDownload(config.url, fileT.Result);
-                            _downloadOperation = _download.StartAsync();
-                            var downloadTask = _downloadOperation.AsTask();
-                            downloadTask.ContinueWith(DownloadTaskFinished, _cancelSource.Token);
-                        }
-                        else
-                        {
-                            _error = GetErrorMessage(fileT, "Failed to create file: ");
-                            _status = BackgroundDownloadStatus.Failed;
-                        }
-                    }, _cancelSource.Token);
-                }
-                else
-                {
-                    _error = GetErrorMessage(folderT, "Failed to get/create directory: ");
-                    _status = BackgroundDownloadStatus.Failed;
-                }
-            }, _cancelSource.Token);
+            StartDownload(filePath, directory);
 #endif
         }
 
@@ -91,6 +45,51 @@ namespace Unity.Networking
             _config.url = url;
             _config.filePath = filePath;
             _cancelSource = new CancellationTokenSource();
+        }
+
+        async void StartDownload(string filePath, string directory)
+        {
+            try
+            {
+                StorageFolder folder = await StorageFolder.GetFolderFromPathAsync(directory).AsTask(_cancelSource.Token);
+                var fileName = Path.GetFileName(filePath);
+                StorageFile resultFile = await folder.CreateFileAsync(fileName, CreationCollisionOption.ReplaceExisting).AsTask(_cancelSource.Token);
+
+                var downloader = new BackgroundDownloader();
+                downloader.TransferGroup = s_BackgroundDownloadGroup;
+                if (config.requestHeaders != null)
+                    foreach (var header in config.requestHeaders)
+                        if (header.Value != null)
+                            foreach (var value in header.Value)
+                                downloader.SetRequestHeader(header.Key, value);
+                switch (config.policy)
+                {
+                    case BackgroundDownloadPolicy.AlwaysAllow:
+                        downloader.CostPolicy = BackgroundTransferCostPolicy.Always;
+                        break;
+                    case BackgroundDownloadPolicy.AllowMetered:
+                    case BackgroundDownloadPolicy.Default:
+                        downloader.CostPolicy = BackgroundTransferCostPolicy.Default;
+                        break;
+                    case BackgroundDownloadPolicy.UnrestrictedOnly:
+                        downloader.CostPolicy = BackgroundTransferCostPolicy.UnrestrictedOnly;
+                        break;
+                }
+                _download = downloader.CreateDownload(config.url, resultFile);
+                _downloadOperation = _download.StartAsync();
+                var downloadTask = _downloadOperation.AsTask();
+                downloadTask.ContinueWith(DownloadTaskFinished, _cancelSource.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                _error = "Download aborted";
+                _status = BackgroundDownloadStatus.Failed;
+            }
+            catch (Exception e)
+            {
+                _error = "Download: " + e.Message;
+                _status = BackgroundDownloadStatus.Failed;
+            }
         }
 #endif
 
