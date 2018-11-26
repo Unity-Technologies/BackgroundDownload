@@ -85,6 +85,7 @@ namespace Unity.Networking
         }
 
 #if ENABLE_WINMD_SUPPORT
+        // constructor for recreating download from existing one in OS
         internal BackgroundDownloadUWP(Uri url, string filePath)
         {
             _config.url = url;
