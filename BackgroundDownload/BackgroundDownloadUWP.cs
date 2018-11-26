@@ -1,7 +1,7 @@
-﻿#if UNITY_WSA_10_0
+﻿#if UNITY_WSA
 
 using System.Collections.Generic;
-#if !UNITY_EDITOR
+#if ENABLE_WINMD_SUPPORT
 using System;
 using System.IO;
 using System.Threading;
@@ -16,7 +16,7 @@ namespace Unity.Networking
 {
     class BackgroundDownloadUWP : BackgroundDownload
     {
-#if !UNITY_EDITOR
+#if ENABLE_WINMD_SUPPORT
         static BackgroundTransferGroup s_BackgroundDownloadGroup;
 
         CancellationTokenSource _cancelSource;
@@ -27,7 +27,7 @@ namespace Unity.Networking
         internal BackgroundDownloadUWP(BackgroundDownloadConfig config)
             : base(config)
         {
-#if !UNITY_EDITOR
+#if ENABLE_WINMD_SUPPORT
             CreateBackgroundDownloadGroup();
             string filePath = Path.Combine(Application.persistentDataPath, config.filePath);
             string directory = Path.GetDirectoryName(filePath).Replace('/', '\\');
@@ -84,7 +84,7 @@ namespace Unity.Networking
 #endif
         }
 
-#if !UNITY_EDITOR
+#if ENABLE_WINMD_SUPPORT
         internal BackgroundDownloadUWP(Uri url, string filePath)
         {
             _config.url = url;
@@ -99,7 +99,7 @@ namespace Unity.Networking
         {
             var downloads = new Dictionary<string, BackgroundDownload>();
 
-#if !UNITY_EDITOR
+#if ENABLE_WINMD_SUPPORT
             CreateBackgroundDownloadGroup();
             var downloadsTask = BackgroundDownloader.GetCurrentDownloadsForTransferGroupAsync(s_BackgroundDownloadGroup).AsTask();
             downloadsTask.Wait();
@@ -138,7 +138,7 @@ namespace Unity.Networking
 
         protected override float GetProgress()
         {
-#if !UNITY_EDITOR
+#if ENABLE_WINMD_SUPPORT
             if (_status != BackgroundDownloadStatus.Downloading)
                 return 1.0f;
             if (_download != null)
@@ -153,7 +153,7 @@ namespace Unity.Networking
             return 0.0f;
         }
 
-#if !UNITY_EDITOR
+#if ENABLE_WINMD_SUPPORT
         public override void Dispose()
         {
             if (_status == BackgroundDownloadStatus.Downloading)
