@@ -50,21 +50,26 @@ namespace Unity.Networking
         internal static Dictionary<string, BackgroundDownload> LoadDownloads()
         {
             var downloads = new Dictionary<string, BackgroundDownload>();
-            IntPtr backend = UnityBackgroundDownloadAttach();
-            byte[] buffer = null;
-            while (backend != IntPtr.Zero)
+            int numDownloads = UnityBackgroundDownloadGetCount();
+            if (numDownloads > 0)
             {
-                if (buffer == null)
-                    buffer = new byte[2048];
-                BackgroundDownloadConfig config = new BackgroundDownloadConfig();
-                int length = UnityBackgroundDownloadGetUrl(backend, buffer);
-                config.url = new Uri(Encoding.UTF8.GetString(buffer, 0, length));
-                length = UnityBackgroundDownloadGetFilePath(backend, buffer);
-                config.filePath = Encoding.UTF8.GetString(buffer, 0, length);
-                var dl = new BackgroundDownloadiOS(backend, config);
-                downloads[config.filePath] = dl;
-                backend = UnityBackgroundDownloadAttach();
+                IntPtr[] loadedDownloads = new IntPtr[numDownloads];
+                UnityBackgroundDownloadGetAll(loadedDownloads);
+                byte[] buffer = new byte[2048];
+
+                for (int i = 0; i < numDownloads; ++i)
+                {
+                    IntPtr backend = loadedDownloads[i];
+                    BackgroundDownloadConfig config = new BackgroundDownloadConfig();
+                    int length = UnityBackgroundDownloadGetUrl(backend, buffer);
+                    config.url = new Uri(Encoding.UTF8.GetString(buffer, 0, length));
+                    length = UnityBackgroundDownloadGetFilePath(backend, buffer);
+                    config.filePath = Encoding.UTF8.GetString(buffer, 0, length);
+                    var dl = new BackgroundDownloadiOS(backend, config);
+                    downloads[config.filePath] = dl;
+                }
             }
+
             return downloads;
         }
 
@@ -128,7 +133,10 @@ namespace Unity.Networking
         static extern void UnityBackgroundDownloadDestroy(IntPtr backend);
 
         [DllImport("__Internal")]
-        static extern IntPtr UnityBackgroundDownloadAttach();
+        static extern int UnityBackgroundDownloadGetCount();
+
+        [DllImport("__Internal")]
+        static extern void UnityBackgroundDownloadGetAll([MarshalAs(UnmanagedType.LPArray)] IntPtr[] downloads);
 
         [DllImport("__Internal")]
         static extern int UnityBackgroundDownloadGetUrl(IntPtr backend, [MarshalAs(UnmanagedType.LPArray)] byte[] buffer);

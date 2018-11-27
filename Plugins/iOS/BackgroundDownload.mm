@@ -27,7 +27,6 @@ enum
 {
 }
 
-@property BOOL isAttached;
 @property int status;
 @property NSString* error;
 
@@ -35,18 +34,15 @@ enum
 
 @implementation UnityBackgroundDownload
 {
-    BOOL _isAttached;
     int _status;
     NSString* _error;
 }
 
-@synthesize isAttached = _isAttached;
 @synthesize status = _status;
 @synthesize error = _error;
 
 - (id)init
 {
-    _isAttached = NO;
     _status = kStatusDownloading;
     _error = nil;
     return self;
@@ -120,7 +116,6 @@ enum
     NSURLSessionDownloadTask *task = [session downloadTaskWithRequest: request];
     task.taskDescription = dest;
     UnityBackgroundDownload* download = [[UnityBackgroundDownload alloc] init];
-    download.isAttached = YES;
     [backgroundDownloads setObject: download forKey: task];
     return task;
 }
@@ -136,23 +131,21 @@ enum
     }];
 }
 
-- (NSURLSessionDownloadTask*)firstUnattachedTask
+- (NSUInteger)taskCount
+{
+    return backgroundDownloads.count;
+}
+
+- (void)getAllTasks:(void**)downloads
 {
     NSEnumerator<NSURLSessionDownloadTask*>* tasks = backgroundDownloads.keyEnumerator;
     NSURLSessionDownloadTask* task = [tasks nextObject];
+    int i = 0;
     while (task != nil)
     {
-        UnityBackgroundDownload* download = [backgroundDownloads objectForKey:task];
-        if (download.isAttached == NO)
-        {
-            download.isAttached = YES;
-            return task;
-        }
-
+        downloads[i++] = (__bridge void*)task;
         task = [tasks nextObject];
     }
-
-    return nil;
 }
 
 - (int)taskStatus:(NSURLSessionDownloadTask*)task
@@ -261,12 +254,18 @@ extern "C" void* UnityBackgroundDownloadStart(void* req, const char* dest)
     return (__bridge void*)task;
 }
 
-extern "C" void* UnityBackgroundDownloadAttach()
+extern "C" int32_t UnityBackgroundDownloadGetCount()
 {
     NSURLSession* session = UnityBackgroundDownloadSession();
     UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
-    NSURLSessionDownloadTask* task = [delegate firstUnattachedTask];
-    return (__bridge void*)task;
+    return (int32_t)[delegate taskCount];
+}
+
+extern "C" void UnityBackgroundDownloadGetAll(void** downloads)
+{
+    NSURLSession* session = UnityBackgroundDownloadSession();
+    UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
+    [delegate getAllTasks:downloads];
 }
 
 extern "C" int32_t UnityBackgroundDownloadGetUrl(void* download, char* buffer)
