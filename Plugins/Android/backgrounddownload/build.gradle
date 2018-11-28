@@ -1,7 +1,7 @@
 buildscript {
     repositories {
-        jcenter()
         google()
+        jcenter()
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.2.0'
@@ -9,11 +9,6 @@ buildscript {
 }
 
 apply plugin: 'android-library'
-
-dependencies {
-    implementation fileTree(dir: 'bin', include: ['*.jar'])
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
-}
 
 android {
     sourceSets {
