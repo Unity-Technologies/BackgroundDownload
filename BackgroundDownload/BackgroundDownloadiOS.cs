@@ -114,14 +114,14 @@ namespace Unity.Networking
         }
 
         [DllImport("__Internal")]
-        static extern IntPtr UnityBackgroundDownloadCreateRequest([MarshalAs(UnmanagedType.LPStr)] string url);
+        static extern IntPtr UnityBackgroundDownloadCreateRequest([MarshalAs(UnmanagedType.LPWStr)] string url);
 
         [DllImport("__Internal")]
         static extern void UnityBackgroundDownloadAddRequestHeader(IntPtr headers,
-            [MarshalAs(UnmanagedType.LPStr)] string name, [MarshalAs(UnmanagedType.LPStr)] string value);
+            [MarshalAs(UnmanagedType.LPWStr)] string name, [MarshalAs(UnmanagedType.LPWStr)] string value);
 
         [DllImport("__Internal")]
-        static extern IntPtr UnityBackgroundDownloadStart(IntPtr request, [MarshalAs(UnmanagedType.LPStr)] string dest);
+        static extern IntPtr UnityBackgroundDownloadStart(IntPtr request, [MarshalAs(UnmanagedType.LPWStr)] string dest);
 
         [DllImport("__Internal")]
         static extern int UnityBackgroundDownloadGetStatus(IntPtr backend);

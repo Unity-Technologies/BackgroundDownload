@@ -1,4 +1,5 @@
 #include "PluginBase/AppDelegateListener.h"
+#include <string>
 
 typedef void (^UnityHandleEventsForBackgroundURLSession)();
 
@@ -14,6 +15,11 @@ static NSURL* GetDestinationUri(NSString* dest, NSFileManager** fileManager)
     if (fileManager != NULL)
         *fileManager = manager;
     return destUri;
+}
+
+static NSString* MakeNSString(const char16_t* str)
+{
+    return [NSString stringWithCharacters: (const unichar*)str length: std::char_traits<char16_t>::length(str)];
 }
 
 enum
@@ -228,25 +234,25 @@ public:
 static UnityBackgroundDownloadRegistrator gRegistrator;
 
 
-extern "C" void* UnityBackgroundDownloadCreateRequest(const char* url)
+extern "C" void* UnityBackgroundDownloadCreateRequest(const char16_t* url)
 {
-    NSURL* downloadUrl = [NSURL URLWithString: [NSString stringWithUTF8String: url]];
+    NSURL* downloadUrl = [NSURL URLWithString: MakeNSString(url)];
     NSMutableURLRequest* request = [[NSMutableURLRequest alloc] init];
     request.HTTPMethod = @"GET";
     request.URL = downloadUrl;
     return (__bridge_retained void*)request;
 }
 
-extern "C" void UnityBackgroundDownloadAddRequestHeader(void* req, const char* header, const char* value)
+extern "C" void UnityBackgroundDownloadAddRequestHeader(void* req, const char16_t* header, const char16_t* value)
 {
     NSMutableURLRequest* request = (__bridge NSMutableURLRequest*)req;
-    [request setValue:[NSString stringWithUTF8String:value] forHTTPHeaderField:[NSString stringWithUTF8String:header]];
+    [request setValue: MakeNSString(value) forHTTPHeaderField: MakeNSString(header)];
 }
 
-extern "C" void* UnityBackgroundDownloadStart(void* req, const char* dest)
+extern "C" void* UnityBackgroundDownloadStart(void* req, const char16_t* dest)
 {
     NSMutableURLRequest* request = (__bridge_transfer NSMutableURLRequest*)req;
-    NSString* destPath = [NSString stringWithUTF8String: dest];
+    NSString* destPath = MakeNSString(dest);
     NSURLSession* session = UnityBackgroundDownloadSession();
     UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
     NSURLSessionDownloadTask *task = [delegate newSessionTask: session withRequest: request forDestination: destPath];
