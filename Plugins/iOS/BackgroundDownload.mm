@@ -22,6 +22,13 @@ static NSString* MakeNSString(const char16_t* str)
     return [NSString stringWithCharacters: (const unichar*)str length: std::char_traits<char16_t>::length(str)];
 }
 
+static int32_t NSStringToUTF16(NSString* str, void* buffer, unsigned size)
+{
+    NSUInteger ret;
+    BOOL converted = [str getBytes:buffer maxLength:size usedLength:&ret encoding:NSUTF16StringEncoding options:NSStringEncodingConversionAllowLossy range:NSMakeRange(0, str.length) remainingRange:nil];
+    return converted ? (int32_t)ret : 0;
+}
+
 enum
 {
     kStatusDownloading = 0,
@@ -278,18 +285,14 @@ extern "C" int32_t UnityBackgroundDownloadGetUrl(void* download, char* buffer)
 {
     NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
     NSString* url = task.originalRequest.URL.absoluteString;
-    const char* cstr = [url UTF8String];
-    strncpy(buffer, cstr, 2048);
-    return (int32_t)strlen(cstr);
+    return NSStringToUTF16(url, buffer, 2048);
 }
 
 extern "C" int32_t UnityBackgroundDownloadGetFilePath(void* download, char* buffer)
 {
     NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
     NSString* dest = task.taskDescription;
-    const char* cstr = [dest UTF8String];
-    strncpy(buffer, cstr, 2048);
-    return (int32_t)strlen(cstr);
+    return NSStringToUTF16(dest, buffer, 2048);
 }
 
 extern "C" int32_t UnityBackgroundDownloadGetStatus(void* download)
@@ -312,15 +315,13 @@ extern "C" float UnityBackgroundDownloadGetProgress(void* download)
     return -1.0f;
 }
 
-extern "C" int32_t UnityBackgroundDownloadGetError(void* download, char* buffer)
+extern "C" int32_t UnityBackgroundDownloadGetError(void* download, void* buffer)
 {
     NSURLSession* session = UnityBackgroundDownloadSession();
     UnityBackgroundDownloadDelegate* delegate = (UnityBackgroundDownloadDelegate*)session.delegate;
     NSURLSessionDownloadTask* task = (__bridge NSURLSessionDownloadTask*)download;
     NSString* error = [delegate taskError:task];
-    const char* cstr = [error UTF8String];
-    strncpy(buffer, cstr, 2048);
-    return (int32_t)strlen(cstr);
+    return NSStringToUTF16(error, buffer, 2048);
 }
 
 extern "C" void UnityBackgroundDownloadDestroy(void* download)

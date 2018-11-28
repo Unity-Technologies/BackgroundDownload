@@ -62,9 +62,9 @@ namespace Unity.Networking
                     IntPtr backend = loadedDownloads[i];
                     BackgroundDownloadConfig config = new BackgroundDownloadConfig();
                     int length = UnityBackgroundDownloadGetUrl(backend, buffer);
-                    config.url = new Uri(Encoding.UTF8.GetString(buffer, 0, length));
+                    config.url = new Uri(MarshalObjCString(buffer, length));
                     length = UnityBackgroundDownloadGetFilePath(backend, buffer);
-                    config.filePath = Encoding.UTF8.GetString(buffer, 0, length);
+                    config.filePath = MarshalObjCString(buffer, length);
                     var dl = new BackgroundDownloadiOS(backend, config);
                     downloads[config.filePath] = dl;
                 }
@@ -110,7 +110,12 @@ namespace Unity.Networking
                 return "";
             byte[] buffer = new byte[2048];
             int length = UnityBackgroundDownloadGetError(_backend, buffer);
-            return Encoding.UTF8.GetString(buffer, 0, length);
+            return MarshalObjCString(buffer, length);
+        }
+
+        private static string MarshalObjCString(byte[] buffer, int length)
+        {
+            return Encoding.Unicode.GetString(buffer, 0, length);
         }
 
         [DllImport("__Internal")]
