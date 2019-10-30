@@ -7,6 +7,7 @@ Supported platforms are: Android, iOS and Universal Windows Platform.
 
 # How to use these plugins
 
+If you are using Unity 2019.3 or older, take these plugins from 2019-3-and-older branch.
 Drop *BackgroundDownload* and *Plugins* folders into *Assets* in your Unity project. If you are building for Android, you have to set `Write Permission` to `External` in *Player Settings*. If you are building for Universal Windows Platform, you need to enable one of the *Internet* permissions.
 
 # API
