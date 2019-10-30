@@ -1,6 +1,5 @@
 package com.unity3d.backgrounddownload;
 
-import java.lang.ref.WeakReference;
 import android.app.DownloadManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -11,24 +10,19 @@ public class CompletionReceiver extends BroadcastReceiver {
         void downloadCompleted();
     }
 
-    private static WeakReference<Callback> callback;
+    private static Callback callback;
 
     public static void setCallback(Callback cback) {
-        callback = new WeakReference(cback);
+        callback = cback;
     }
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (callback == null)
             return;
-        Callback cback = callback.get();
-        if (cback == null) {
-            callback = null;
-            return;
-        }
         if (DownloadManager.ACTION_DOWNLOAD_COMPLETE.equals(intent.getAction())) {
             try {
-                cback.downloadCompleted();
+                callback.downloadCompleted();
             } catch (UnsatisfiedLinkError e) {
                 // if app quits, callback can be not-null, but is invalid (C# side destroyed)
                 // this is fine: we will pick the status next time app is launched
