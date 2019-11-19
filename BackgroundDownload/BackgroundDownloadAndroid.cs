@@ -22,8 +22,11 @@ namespace Unity.Networking
 
             void downloadCompleted()
             {
-                foreach (var download in _downloads.Values)
-                    ((BackgroundDownloadAndroid)download).CheckFinished();
+                lock (typeof(BackgroundDownload))
+                {
+                    foreach (var download in _downloads.Values)
+                        ((BackgroundDownloadAndroid) download).CheckFinished();
+                }
             }
         }
 

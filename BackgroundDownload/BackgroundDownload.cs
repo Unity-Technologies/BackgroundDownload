@@ -67,12 +67,15 @@ namespace Unity.Networking
         {
             get
             {
-                LoadDownloads();
-                var ret = new BackgroundDownload[_downloads.Count];
-                int i = 0;
-                foreach (var download in _downloads)
-                    ret[i++] = download.Value;
-                return ret;
+                lock (typeof(BackgroundDownload))
+                {
+                    LoadDownloads();
+                    var ret = new BackgroundDownload[_downloads.Count];
+                    int i = 0;
+                    foreach (var download in _downloads)
+                        ret[i++] = download.Value;
+                    return ret;
+                }
             }
         }
 
@@ -90,13 +93,16 @@ namespace Unity.Networking
 
         public static BackgroundDownload Start(BackgroundDownloadConfig config)
         {
-            LoadDownloads();
-            if (_downloads.ContainsKey(config.filePath))
-                throw new ArgumentException("Download of this file is already present");
-            var download = new BackgroundDownloadimpl(config);
-            _downloads.Add(config.filePath, download);
-            SaveDownloads();
-            return download;
+            lock (typeof(BackgroundDownload))
+            {
+                LoadDownloads();
+                if (_downloads.ContainsKey(config.filePath))
+                    throw new ArgumentException("Download of this file is already present");
+                var download = new BackgroundDownloadimpl(config);
+                _downloads.Add(config.filePath, download);
+                SaveDownloads();
+                return download;
+            }
         }
 
         protected BackgroundDownload()
@@ -131,12 +137,15 @@ namespace Unity.Networking
 
         public virtual void Dispose()
         {
-            _downloads.Remove(_config.filePath);
-            SaveDownloads();
-            if (_status == BackgroundDownloadStatus.Downloading)
+            lock (typeof(BackgroundDownload))
             {
-                _status = BackgroundDownloadStatus.Failed;
-                _error = "Aborted";
+                _downloads.Remove(_config.filePath);
+                SaveDownloads();
+                if (_status == BackgroundDownloadStatus.Downloading)
+                {
+                    _status = BackgroundDownloadStatus.Failed;
+                    _error = "Aborted";
+                }
             }
         }
 
