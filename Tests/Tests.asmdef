@@ -1,23 +1,11 @@
 {
-    "name": "Tests",
+    "name": "Unity.Networking.BackgroundDownload.Tests",
     "references": [
-        "BackgroundDownload"
+        "Unity.Networking.BackgroundDownload"
     ],
     "optionalUnityReferences": [
         "TestAssemblies"
     ],
-    "includePlatforms": [
-        "Android",
-        "Editor",
-        "iOS",
-        "WSA"
-    ],
-    "excludePlatforms": [],
-    "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [
-        ""
-    ],
-    "autoReferenced": true,
-    "defineConstraints": []
+    "includePlatforms": [],
+    "excludePlatforms": []
 }
