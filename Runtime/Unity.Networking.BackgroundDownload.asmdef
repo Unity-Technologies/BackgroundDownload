@@ -1,0 +1,11 @@
+{
+    "name": "Unity.Networking.BackgroundDownload",
+    "references": [],
+    "includePlatforms": [
+        "Android",
+        "Editor",
+        "iOS",
+        "WSA"
+    ],
+    "excludePlatforms": []
+}

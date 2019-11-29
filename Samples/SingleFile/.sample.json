@@ -1,0 +1,5 @@
+{
+	"displayName":"Single File Sample",
+	"description": "An example C# script to download a single file in the background.",
+	"createSeparatePackage": false
+}
