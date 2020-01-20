@@ -11,6 +11,7 @@ namespace Unity.Networking
 
     class BackgroundDownloadAndroid : BackgroundDownload
     {
+        private const string TEMP_FILE_SUFFIX = ".part";
         static AndroidJavaClass _playerClass;
         static AndroidJavaClass _backgroundDownloadClass;
 
@@ -34,6 +35,7 @@ namespace Unity.Networking
 
         AndroidJavaObject _download;
         long _id = 0;
+        string _tempFilePath;
 
         static void SetupBackendStatics()
         {
@@ -54,15 +56,18 @@ namespace Unity.Networking
         {
             SetupBackendStatics();
             string filePath = Path.Combine(Application.persistentDataPath, config.filePath);
+            _tempFilePath = filePath + TEMP_FILE_SUFFIX;
             if (File.Exists(filePath))
                 File.Delete(filePath);
+            if (File.Exists(_tempFilePath))
+                File.Delete(_tempFilePath);
             else
             {
                 var dir = Path.GetDirectoryName(filePath);
                 if (!Directory.Exists(dir))
                     Directory.CreateDirectory(dir);
             }
-            string fileUri = "file://" + filePath;
+            string fileUri = "file://" + _tempFilePath;
             bool allowMetered = false;
             bool allowRoaming = false;
             switch (_config.policy)
@@ -95,7 +100,7 @@ namespace Unity.Networking
             _id = id;
             _download = download;
             _config.url = QueryDownloadUri();
-            _config.filePath = QueryDestinationPath();
+            _config.filePath = QueryDestinationPath(out _tempFilePath);
             CheckFinished();
         }
 
@@ -122,14 +127,23 @@ namespace Unity.Networking
             return new Uri(_download.Call<string>("getDownloadUrl"));
         }
 
-        string QueryDestinationPath()
+        string QueryDestinationPath(out string tempFilePath)
         {
             string uri = _download.Call<string>("getDestinationUri");
             string basePath = Application.persistentDataPath;
             var pos = uri.IndexOf(basePath);
+            tempFilePath = uri.Substring(pos);
             pos += basePath.Length;
             if (uri[pos] == '/')
                 ++pos;
+            var suffixPos = uri.LastIndexOf(TEMP_FILE_SUFFIX);
+            if (suffixPos > 0)
+            {
+                var length = suffixPos;
+                length -= pos;
+                return uri.Substring(pos, length);
+            }
+
             return uri.Substring(pos);
         }
 
@@ -144,7 +158,20 @@ namespace Unity.Networking
             {
                 int status = _download.Call<int>("checkFinished");
                 if (status == 1)
+                {
+                    if (_tempFilePath.EndsWith(TEMP_FILE_SUFFIX))
+                    {
+                        string filePath = _tempFilePath.Substring(0, _tempFilePath.Length - TEMP_FILE_SUFFIX.Length);
+                        if (File.Exists(_tempFilePath))
+                        {
+                            if (File.Exists(filePath))
+                                File.Delete(filePath);
+                            File.Move(_tempFilePath, filePath);
+                        }
+                    }
+
                     _status = BackgroundDownloadStatus.Done;
+                }
                 else if (status < 0)
                 {
                     _status = BackgroundDownloadStatus.Failed;
