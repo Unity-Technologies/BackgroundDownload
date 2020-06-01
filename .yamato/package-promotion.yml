@@ -20,7 +20,7 @@ promotion_test_{{ platform.name }}_{{ editor.version }}:
     UPMCI_PROMOTION: 1
   commands:
     - npm install upm-ci-utils@stable -g --registry https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-npm
-    - upm-ci package test --unity-version {{ editor.version }} --package-path com.unity.networking.backgrounddownload
+    - upm-ci package test --unity-version {{ editor.version }}
   artifacts:
     logs:
       paths:
@@ -49,7 +49,7 @@ promote:
     UPMCI_PROMOTION: 1
   commands:
     - npm install upm-ci-utils@stable -g --registry https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-npm
-    - upm-ci package promote --package-path com.unity.networking.backgrounddownload --dry-run
+    - upm-ci package promote --dry-run
   triggers:
     tags:
       only:
