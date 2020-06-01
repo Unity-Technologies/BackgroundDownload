@@ -6,7 +6,7 @@ pack:
     flavor: b1.large
   commands:
     - npm install upm-ci-utils@stable -g --registry https://artifactory.prd.cds.internal.unity3d.com/artifactory/api/npm/upm-npm
-    - upm-ci package pack --package-path com.unity.networking.backgrounddownload
+    - upm-ci package pack --package-path com.unity.networking.backgrounddownload --git-url git@github.com:Unity-Technologies/BackgroundDownload.git
   artifacts:
     packages:
       paths:
