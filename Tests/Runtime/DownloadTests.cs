@@ -30,13 +30,21 @@ namespace Tests
         [UnityTest]
         public IEnumerator DownloadFile()
         {
+#if UNITY_EDITOR
+            yield break;
+#else
             return DownloadFileTest(TEST_FILE);
+#endif
         }
 
         [UnityTest]
         public IEnumerator DownloadFileToSubdir()
         {
+#if UNITY_EDITOR
+            yield break;
+#else
             return DownloadFileTest(TEST_FILE_IN_DIR);
+#endif
         }
 
         IEnumerator DownloadFileTest(string filePath)
