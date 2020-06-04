@@ -67,7 +67,7 @@ Methods:
 
 # Examples
 
-Download file during the same app session in a coroutine (call `StartCoroutine(StartDownload())`).
+Download file during the same app session in a coroutine [(call `StartCoroutine(StartDownload())`)](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html).
 
 ```
 IEnumerator StartDownload()
