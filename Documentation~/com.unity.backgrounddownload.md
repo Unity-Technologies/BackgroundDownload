@@ -57,7 +57,7 @@ IEnumerator StartDownload()
 }
 ```
 
-Pick download from previous app run and continue it until it finishes.
+The example below shows how to pick up a download from a previous app run and continue it until it finishes.
 
 ```
 IEnumerator ResumeDownload()
