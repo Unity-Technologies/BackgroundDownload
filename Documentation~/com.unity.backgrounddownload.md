@@ -41,7 +41,7 @@ This version of &lt;package name&gt; is compatible with the following versions o
 
 # Examples
 
-Download file during the same app session in a coroutine [(call `StartCoroutine(StartDownload())`)](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html).
+The example below shows how to call [`StartCoroutine(StartDownload())`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html) to download a file during the same app session in a coroutine.
 
 ```
 IEnumerator StartDownload()
