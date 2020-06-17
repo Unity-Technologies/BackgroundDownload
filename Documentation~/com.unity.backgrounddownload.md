@@ -1,12 +1,12 @@
-# About &lt;com.unity.backgrounddownload&gt;
+# About com.unity.backgrounddownload
 
-Use the &lt;Background Download&gt; package to &lt;download large files in the background on mobile platforms&gt;. The intent of this package is to let you fetch files that aren't required immediately with caring less about application lifecycle. The download will continue if your application goes into background and even if Operating System decides to close your application (usually due to low memory for foreground tasks).
+Use the Background Download package to download large files in the background on mobile platforms. This lackage lets you fetch files that aren't required immediately while caring less about application lifecycle. Downloads will continue even if your application goes into background or the Operating System closes it (usually due to low memory for foreground tasks).
 
-The &lt;Background Download&gt; package however &lt;is not a replacement for HTTP clients&gt;. It has a specific focus on fetching files in lower priority for future use. Downloads may also be slower, since it is assumed that these download are of lower priority.
+The Background Download package is not a replacement for HTTP clients. It has a specific focus on fetching lower-priority files for future use. Because the app assumes that these downloads have lower priority, download speeds can also be slower.
 
 
 ## Preview package
-This package is available as a preview, so it is not ready for production use. The features and documentation in this package might change before it is verified for release.
+This is a preview package and is not ready for production use. The features and documentation in this package might change before it is verified for release.
 
 
 ## Package contents
@@ -15,8 +15,8 @@ The following table describes the package folder structure:
 
 |**Location**|**Description**|
 |---|---|
-|*Runtime*|Contains &lt;C# code and native plugins for mobile platforms&gt;.|
-|*Samples*|Contains &lt;example C# scripts explaining how to use this package&gt;.|
+|`Runtime`|Contains C# code and native plugins for mobile platforms.|
+|`Samples`|Contains example C# scripts explaining how to use this package.|
 
 <a name="Installation"></a>
 
@@ -27,17 +27,17 @@ To install this package, follow the instructions in the [Package Manager documen
 
 ## Requirements
 
-This version of &lt;package name&gt; is compatible with the following versions of the Unity Editor:
+This version of Background Download is compatible with the following versions of the Unity Editor:
 
 * 2020.1 and later
 
 
 ## Known limitations
 
-&lt;Background Download&gt; version &lt;0.1.0&gt; includes the following known limitations:
+Background Download version 0.1.0 includes the following known limitations:
 
-* &lt;Does not work in Editor, only compiles.&gt;
-* &lt;Only Android, iOS and Universal Windows Platform are supported.&gt;
+* Does not work in the Unity Editor, only compiles.
+* Only supports Android, iOS, and Universal Windows Platform.
 
 # Examples
 
