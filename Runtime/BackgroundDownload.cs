@@ -115,7 +115,7 @@ namespace Unity.Networking
     /// Note, that the download might not finish under specific conditions, for example Operating System can provide user with a feature to cancel such download.
     /// An instance of this class can be returned from the Coroutine to suspend it until download is finished.
     /// The object of this class must be disposed when no longer required by calling Dispose() or by placing the object in the using() block.
-    /// If background download is disposed before completion, it is also cancelled, the existence and contents of result file is undefined.
+    /// If the background download is disposed before completion, it is also cancelled. The result file may or may not exist, contain old data, or contain partial data.
     /// The destination file must not be used before download completes. Otherwise it may prevent the download from writing to destination.
     /// If app is quit by the operating system, on next run background downloads can be picked up by accessing BackgroundDownload.backgroundDownloads.
     /// </summary>
