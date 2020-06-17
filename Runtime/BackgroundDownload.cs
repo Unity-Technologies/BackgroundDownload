@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -17,6 +17,7 @@ namespace Unity.Networking
 {
     /// <summary>
     /// The policy for download, such as what type of network connection can be used.
+    /// Not supported on iOS (does nothing).
     /// </summary>
     public enum BackgroundDownloadPolicy
     {
@@ -33,13 +34,16 @@ namespace Unity.Networking
         /// </summary>
         AllowMetered = 2,
         /// <summary>
-        /// Allows to use any connection including expensive options like roaming.
+        /// Allows to use any connection including expensive options, such as roaming.
         /// </summary>
         AlwaysAllow = 3,
     }
 
     /// <summary>
     /// All the settings to perform a download.
+    /// This structure must contain the URL to file to download and a path to file to store.
+    /// Destination file will be overwritten if exists. Destination path must relative and result will be placed inside Application.persistentDataPath, because directories an application is allowed to write to are not guaranteed to be the same across different app runs.
+    /// Optionally can contain custom HTTP headers to send and network policy. These two settings are not guaranteed to persist across different app runs.
     /// </summary>
     public struct BackgroundDownloadConfig
     {
@@ -52,7 +56,7 @@ namespace Unity.Networking
         /// </summary>
         public string filePath;
         /// <summary>
-        /// A policy for this download; does not persist across app runs.
+        /// A policy to limit this download to certain network types; does not persist across app runs.
         /// </summary>
         public BackgroundDownloadPolicy policy;
         /// <summary>
@@ -110,7 +114,10 @@ namespace Unity.Networking
     /// A class to perform file downloads that will continue if app goes into background or even gets shut down by OS.
     /// Note, that the download might not finish under specific conditions, for example Operating System can provide user with a feature to cancel such download.
     /// An instance of this class can be returned from the Coroutine to suspend it until download is finished.
-    /// The object of this class must be disposed when no longer required by calling Dispose().
+    /// The object of this class must be disposed when no longer required by calling Dispose() or by placing the object in the using() block.
+    /// If the background download is disposed before completion, it is also cancelled. The result file may or may not exist, contain old data, or contain partial data.
+    /// The destination file must not be used before download completes. Otherwise it may prevent the download from writing to destination.
+    /// If app is quit by the operating system, on next run background downloads can be picked up by accessing BackgroundDownload.backgroundDownloads.
     /// </summary>
     public abstract class BackgroundDownload
         : CustomYieldInstruction
@@ -138,12 +145,15 @@ namespace Unity.Networking
             }
         }
 
+        /// <summary>Holds download configuration. For internal use only.</summary>
         protected BackgroundDownloadConfig _config;
+        /// <summary>Hold download status. For internal use only.</summary>
         protected BackgroundDownloadStatus _status = BackgroundDownloadStatus.Downloading;
+        /// <summary>Hold error message. For internal use only.</summary>
         protected string _error;
 
         /// <summary>
-        /// Start download from given URL. Create BackgroundDownloadConfig using given arguments.
+        /// Start download from given URL. Creates BackgroundDownloadConfig using given arguments.
         /// </summary>
         /// <param name="url">URL to download from.</param>
         /// <param name="filePath">A relative path to save to; will be saved under Application.persistentDataPath.</param>
@@ -177,10 +187,12 @@ namespace Unity.Networking
             }
         }
 
+        /// <summary>For internal use.</summary>
         protected BackgroundDownload()
         {
         }
 
+        /// <summary>For internal use.</summary>
         protected BackgroundDownload(BackgroundDownloadConfig config)
         {
             _config = config;
@@ -208,7 +220,7 @@ namespace Unity.Networking
         public virtual BackgroundDownloadStatus status { get { return _status; } }
 
         /// <summary>
-        /// If download has finished with error, returns an error message for the failure.
+        /// Error message for a failed download.
         /// </summary>
         public string error { get { return _error; } }
 
@@ -217,6 +229,7 @@ namespace Unity.Networking
         /// </summary>
         public float progress { get { return GetProgress(); } }
 
+        /// <summary>For internal use.</summary>
         protected abstract float GetProgress();
 
         /// <summary>
@@ -248,5 +261,4 @@ namespace Unity.Networking
             BackgroundDownloadimpl.SaveDownloads(_downloads);
         }
     }
-
 }

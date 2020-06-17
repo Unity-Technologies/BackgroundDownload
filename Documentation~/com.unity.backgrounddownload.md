@@ -38,3 +38,36 @@ This version of &lt;package name&gt; is compatible with the following versions o
 
 * &lt;Does not work in Editor, only compiles.&gt;
 * &lt;Only Android, iOS and Universal Windows Platform are supported.&gt;
+
+# Examples
+
+The example below shows how to call [`StartCoroutine(StartDownload())`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html) to download a file during the same app session in a coroutine.
+
+```
+IEnumerator StartDownload()
+{
+    using (var download = BackgroundDownload.Start(new Uri("https://mysite.com/file"), "files/file.data"))
+    {
+        yield return download;
+        if (download.status == BackgroundDownloadStatus.Failed)
+            Debug.Log(download.error);
+        else
+            Debug.Log("DONE downloading file");
+    }
+}
+```
+
+The example below shows how to pick up a download from a previous app run and continue it until it finishes.
+
+```
+IEnumerator ResumeDownload()
+{
+    if (BackgroundDownload.backgroundDownloads.Length == 0)
+        yield break;
+    var download = BackgroundDownload.backgroundDownloads[0];
+    yield return download;
+    // deal with results here
+    // dispose download
+    download.Dispose();
+}
+```
