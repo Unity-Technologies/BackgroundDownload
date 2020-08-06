@@ -11,7 +11,7 @@ public class SingleFileDownload : MonoBehaviour
 {
     void Start()
     {
-        string fileName = "success.jpb";
+        string fileName = "success.jpg";
         string destinationFile = Path.Combine(Application.persistentDataPath, fileName);
 
         if (File.Exists(destinationFile))
