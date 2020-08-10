@@ -5,5 +5,6 @@
 	"unity": "2020.1",
 	"description": "Enable file downloads in background for mobile platforms\nAllows to launch file downloads that will continue even if the app goes into background or gets quit by the operating system. The downloads can be picked the next time the app is started.\nSupported platforms are: \n\u25AA Android \n\u25AA iOS \n\u25AA Universal Windows Platform",
 	"dependencies": {
+		"com.unity.modules.androidjni": "1.0.0"
 	}
 }
