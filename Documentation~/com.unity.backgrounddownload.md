@@ -5,7 +5,7 @@ Use the Background Download package to download large files in the background on
 The Background Download package is not a replacement for HTTP clients. It has a specific focus on fetching lower-priority files for future use. Because the app assumes that these downloads have lower priority, download speeds can also be slower.
 
 
-## Preview package
+## unsupported package
 This is a preview package and is not ready for production use. The features and documentation in this package might change before it is verified for release.
 
 
