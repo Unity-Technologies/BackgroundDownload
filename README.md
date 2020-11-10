@@ -1,14 +1,69 @@
-# BackgroundDownload
+# About com.unity.backgrounddownload
 
-Plugins for mobile platforms to enable file downloads in background
+## Note: Unsupported feature
+This package is not an officially supported feature, and is provided "as is".
 
-Allows to launch file downloads that will continue even if the app goes into background or gets quit by the operating system. The downloads can be picked the next time the app is started.
-Supported platforms are: Android, iOS and Universal Windows Platform.
+## Feature scope
+Use Background Download to download large files in the background on mobile platforms. It lets you fetch files that aren't required immediately while caring less about application lifecycle. Downloads will continue even if your application goes into background or the Operating System closes it (usually due to low memory for foreground tasks).
+The Background Download package is not a replacement for HTTP clients. It has a specific focus on fetching lower-priority files for future use. Because the app assumes that these downloads have lower priority, download speeds can also be slower.
 
-# How to use these plugins
+**The Background Download is not integrated with the Addressable System or Asset Bundles** and will require you write additional code to use in this context.
 
-If you are using Unity 2019.3 or older, take these plugins from 2019-3-and-older branch.
-Drop *BackgroundDownload* and *Plugins* folders into *Assets* in your Unity project. If you are building for Android, you have to set `Write Permission` to `External` in *Player Settings*. If you are building for Universal Windows Platform, you need to enable one of the *Internet* permissions.
+
+## Limited platform support
+Background Download only works on Android, iOS and Universal Windows Platform.
+It does not work in the Unity Editor, it only compiles.
+
+## How to install
+
+### For 2019.4 or newer 
+This feature is built as a package. To install the package, follow the instructions in the Package Manager documentation [from a local folder](https://docs.unity3d.com/Manual/upm-ui-local.html) or [from a GIT URL](https://docs.unity3d.com/Manual/upm-ui-giturl.html). 
+
+For 2019.3 or older:  
+Clone/download this project from the 2019-3-and-older branch. Drop BackgroundDownload and Plugins folders into Assets in your Unity project. If you are building for Android, you have to set Write Permission to External in Player Settings. If you are building for Universal Windows Platform, you need to enable one of the Internet permissions.
+
+## Package contents
+
+The following table describes the package folder structure:
+
+|**Location**|**Description**|
+|---|---|
+|`Runtime`|Contains C# code and native plugins for mobile platforms.|
+|`Samples`|Contains example C# scripts explaining how to use this package.|
+
+
+# Examples
+
+The example below shows how to call [`StartCoroutine(StartDownload())`](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html) to download a file during the same app session in a coroutine.
+
+```
+IEnumerator StartDownload()
+{
+    using (var download = BackgroundDownload.Start(new Uri("https://mysite.com/file"), "files/file.data"))
+    {
+        yield return download;
+        if (download.status == BackgroundDownloadStatus.Failed)
+            Debug.Log(download.error);
+        else
+            Debug.Log("DONE downloading file");
+    }
+}
+```
+
+The example below shows how to pick up a download from a previous app run and continue it until it finishes.
+
+```
+IEnumerator ResumeDownload()
+{
+    if (BackgroundDownload.backgroundDownloads.Length == 0)
+        yield break;
+    var download = BackgroundDownload.backgroundDownloads[0];
+    yield return download;
+    // deal with results here
+    // dispose download
+    download.Dispose();
+}
+```
 
 # API
 
@@ -64,36 +119,3 @@ Methods:
 * `static BackgroundDownload Start(BackgroundDownloadConfig config)` - start download using given configuration.
 * `static BackgroundDownload Start(Uri url, String filePath)` - convenience method to start download when no additional settings are required.
 * `void Dispose()` - release the resources and remove the download. Cancels download if incomplete.
-
-# Examples
-
-Download file during the same app session in a coroutine [(call `StartCoroutine(StartDownload())`)](https://docs.unity3d.com/ScriptReference/MonoBehaviour.StartCoroutine.html).
-
-```
-IEnumerator StartDownload()
-{
-    using (var download = BackgroundDownload.Start(new Uri("https://mysite.com/file"), "files/file.data"))
-    {
-        yield return download;
-        if (download.status == BackgroundDownloadStatus.Failed)
-            Debug.Log(download.error);
-        else
-            Debug.Log("DONE downloading file");
-    }
-}
-```
-
-Pick download from previous app run and continue it until it finishes.
-
-```
-IEnumerator ResumeDownload()
-{
-    if (BackgroundDownload.backgroundDownloads.Length == 0)
-        yield break;
-    var download = BackgroundDownload.backgroundDownloads[0];
-    yield return download;
-    // deal with results here
-    // dispose download
-    download.Dispose();
-}
-```
