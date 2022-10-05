@@ -1,0 +1,20 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\BkgDwnForkTest",
+    "\\BkgDwnForkTest\\Assets",
+    "\\BkgDwnForkTest\\Assets\\BackgroundDownload",
+    "\\Runtime",
+    "\\Runtime\\Plugins",
+    "\\Runtime\\Plugins\\Android",
+    "\\Runtime\\Plugins\\Android\\backgrounddownload.androidlib",
+    "\\Runtime\\Plugins\\Android\\backgrounddownload.androidlib\\src",
+    "\\Runtime\\Plugins\\Android\\backgrounddownload.androidlib\\src\\main",
+    "\\Runtime\\Plugins\\Android\\backgrounddownload.androidlib\\src\\main\\java",
+    "\\Runtime\\Plugins\\Android\\backgrounddownload.androidlib\\src\\main\\java\\com",
+    "\\Runtime\\Plugins\\Android\\backgrounddownload.androidlib\\src\\main\\java\\com\\unity3d",
+    "\\Runtime\\Plugins\\Android\\backgrounddownload.androidlib\\src\\main\\java\\com\\unity3d\\backgrounddownload"
+  ],
+  "SelectedNode": "\\BkgDwnForkTest\\Assets\\BackgroundDownload\\BackgroundDownload.cs",
+  "PreviewInSolutionExplorer": false
+}
